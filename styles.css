@@ -54,7 +54,7 @@ h1, h2 {
     margin: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: relative; /* Добавлено для правильной позиционирования кнопки */
+    position: relative;
 }
 
 .student-details {
@@ -64,7 +64,8 @@ h1, h2 {
 
 .student-photo {
     width: 100%;
-    max-width: 120px;  /* Уменьшаем фото */
+    max-width: 80px;  /* уменьшил до 80px */
+    height: auto;     /* Поддерживаем пропорции */
     margin: 10px 0;
     border-radius: 8px;
 }
@@ -81,7 +82,7 @@ h1, h2 {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    position: absolute; /* Фиксируем её в левом верхнем углу */
+    position: absolute;
     top: 20px;
     left: 20px;
     z-index: 10;
@@ -108,6 +109,6 @@ h1, h2 {
     }
 
     .student-photo {
-        max-width: 100px; /* Для мобильных устройств фото будет ещё меньше */
+        max-width: 60px; /* Уменьшаем фото ещё больше для мобильных устройств */
     }
 }
