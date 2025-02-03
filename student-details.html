@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Данные пассажира</title>
+    <title>Детали студента</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,9 +40,16 @@
         }
 
         .student-photo {
-            width: 120px; /* Уменьшенный размер */
+            width: 120px;
             height: auto;
             border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: red;
             margin-top: 10px;
         }
 
@@ -71,13 +78,25 @@
         <div><strong>Номер паспорта:</strong> <span id="studentPassport"></span></div>
         <div><strong>Кем и когда выдан:</strong> <span id="studentIssued"></span></div>
         <div><img id="studentPhoto" class="student-photo" src="" alt="Фото студента"></div>
+        <div class="timer">Осталось: <span id="countdown">60</span> сек.</div>
     </div>
 
     <div id="timeWarning" class="time-warning">Время закончилось!</div>
 
+    <!-- Аудио для сигнала -->
+    <audio id="alarmSound">
+        <source src="alarm.mp3" type="audio/mpeg">
+        Ваш браузер не поддерживает аудио.
+    </audio>
+
     <script>
-        const students = [
-    { id: 1, name: "Иванон Иван Иванович", photo: "images/ivan.jpg", dob: "01.01.2000", pob: "Москва", passport: "1234 567890", issued: "ГУ МВД 10.10.2018" },
+        let countdownTimer; // Переменная для таймера
+
+        function getStudentDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentId = parseInt(urlParams.get("id"), 10);
+            const students = [
+    { id: 1, name: "Иванов Иван Иванович", photo: "images/ivan.jpg", dob: "01.01.2000", pob: "Москва", passport: "1234 567890", issued: "ГУ МВД 10.10.2018" },
     { id: 2, name: "Смирнова Анна Сергеевна", photo: "images/anna.jpg", dob: "02.02.1995", pob: "Санкт-Петербург", passport: "2345 678901", issued: "ГУ МВД 12.11.2017" },
     { id: 3, name: "Кузнецов Олег Николаевич", photo: "images/denis.jpg", dob: "03.03.1994", pob: "Казань", passport: "3456 789012", issued: "ГУ МВД 15.03.2019" },
     { id: 4, name: "Попова Елизавета Дмитриевна", photo: "images/maria.jpg", dob: "04.04.1998", pob: "Екатеринбург", passport: "4567 890123", issued: "ГУ МВД 20.09.2018" },
@@ -109,13 +128,9 @@
     { id: 30, name: "Филатов Игорь Олегович", photo: "images/maria.jpg", dob: "30.06.1995", pob: "Тверь", passport: "0123 456789", issued: "ГУ МВД 03.09.2017" }
 ];
 
-        function getStudentDetails() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const studentId = parseInt(urlParams.get("id"), 10);
             const student = students.find(s => s.id === studentId);
-
             if (!student) {
-                document.body.innerHTML = "<h1>Студент не найден</h1>";
+                document.body.innerHTML = "<h1>Пассажир не найден</h1>";
                 return;
             }
 
@@ -130,12 +145,23 @@
         }
 
         function startTimer() {
-            setTimeout(() => {
-                document.getElementById("timeWarning").style.display = "block";
-            }, 60000); // 60 секунд (1 минута)
+            let timeLeft = 60;
+            document.getElementById("countdown").textContent = timeLeft;
+
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("countdown").textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    document.getElementById("timeWarning").style.display = "block";
+                    document.getElementById("alarmSound").play();
+                }
+            }, 1000);
         }
 
         function goBack() {
+            clearInterval(countdownTimer); // Останавливаем таймер при выходе
             window.location.href = "index.html";
         }
 
