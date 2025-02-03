@@ -3,101 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Детали студента</title>
+    <title>Подробности пассажира</title>
     <style>
+        /* Общие стили для страницы с деталями */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
-            text-align: center;
         }
 
-        .student-details-container {
-            max-width: 400px;
-            margin: 20px auto;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        #studentDetails {
+            padding: 20px;
+            background-color: #fff;
+            margin: 20px;
+            border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             position: relative;
         }
 
-        .back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .back-button:hover {
-            background-color: darkred;
+        .student-details {
+            max-width: 400px;
+            margin: 0 auto;
         }
 
         .student-photo {
-            width: 120px;
-            height: auto;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        .timer {
-            font-size: 18px;
-            font-weight: bold;
-            color: red;
-            margin-top: 10px;
-        }
-
-        .time-warning {
-            display: none;
-            background: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 15px;
-            position: fixed;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 18px;
-            font-weight: bold;
+            width: 100%;
+            max-width: 300px; /* уменьшил до 80px */
+            height: auto;     /* Поддерживаем пропорции */
+            margin: 10px 0;
             border-radius: 8px;
+        }
+
+        .student-details div {
+            margin-bottom: 10px;
+        }
+
+        /* Кнопка "Назад" */
+        .back-button {
+            background-color: #0000ff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+
+        .back-button:hover {
+            background-color: #e60000;
+        }
+
+        /* Стили для мобильных устройств */
+        @media (max-width: 600px) {
+            .student-details {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .student-photo {
+                max-width: 300px; /* Уменьшаем фото ещё больше для мобильных устройств */
+            }
         }
     </style>
 </head>
 <body>
-    <div class="student-details-container">
-        <button class="back-button" onclick="goBack()">Назад</button>
-        <h2>Подробности паспорта</h2>
-        <div><strong>ФИО:</strong> <span id="studentName"></span></div>
-        <div><strong>Дата рождения:</strong> <span id="studentDob"></span></div>
-        <div><strong>Место рождения:</strong> <span id="studentPob"></span></div>
-        <div><strong>Номер паспорта:</strong> <span id="studentPassport"></span></div>
-        <div><strong>Кем и когда выдан:</strong> <span id="studentIssued"></span></div>
-        <div><img id="studentPhoto" class="student-photo" src="" alt="Фото студента"></div>
-        <div class="timer">Осталось: <span id="countdown">60</span> сек.</div>
-    </div>
-
-    <div id="timeWarning" class="time-warning">Время закончилось!</div>
-
-    <!-- Аудио для сигнала -->
-    <audio id="alarmSound">
-        <source src="alarm.mp3" type="audio/mpeg">
-        Ваш браузер не поддерживает аудио.
-    </audio>
+    <div id="studentDetails"></div>
 
     <script>
-        let countdownTimer;
-        let timeLeft = localStorage.getItem("timeLeft") ? parseInt(localStorage.getItem("timeLeft"), 10) : 60;
-        let timerRunning = localStorage.getItem("timerRunning") === "true";
-
-        function getStudentDetails() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const studentId = parseInt(urlParams.get("id"), 10);
-            const students = [
+        // Данные студентов с паспортами
+        const students = [
     { id: 1, name: "Иванов Иван Иванович", photo: "images/ivan.jpg", dob: "01.01.2000", pob: "Москва", passport: "1234 567890", issued: "ГУ МВД 10.10.2018" },
     { id: 2, name: "Смирнова Анна Сергеевна", photo: "images/anna.jpg", dob: "02.02.1995", pob: "Санкт-Петербург", passport: "2345 678901", issued: "ГУ МВД 12.11.2017" },
     { id: 3, name: "Кузнецов Олег Николаевич", photo: "images/denis.jpg", dob: "03.03.1994", pob: "Казань", passport: "3456 789012", issued: "ГУ МВД 15.03.2019" },
@@ -130,49 +113,33 @@
     { id: 30, name: "Филатов Игорь Олегович", photo: "images/maria.jpg", dob: "30.06.1995", pob: "Тверь", passport: "0123 456789", issued: "ГУ МВД 03.09.2017" }
 ];
 
-            const student = students.find(s => s.id === studentId);
+        // Функция для отображения подробностей студента
+        function displayStudentDetails() {
+            const studentId = new URLSearchParams(window.location.search).get('id');
+            const student = students.find(s => s.id == studentId);
+            
             if (!student) {
-                document.body.innerHTML = "<h1>Студент не найден</h1>";
+                document.getElementById('studentDetails').innerHTML = 'Пассажир не найден';
                 return;
             }
 
-            document.getElementById("studentName").textContent = student.name;
-            document.getElementById("studentDob").textContent = student.dob;
-            document.getElementById("studentPob").textContent = student.pob;
-            document.getElementById("studentPassport").textContent = student.passport;
-            document.getElementById("studentIssued").textContent = student.issued;
-            document.getElementById("studentPhoto").src = student.photo;
-
-            document.getElementById("countdown").textContent = timeLeft;
-
-            if (!timerRunning) {
-                startTimer();
-            }
+            const studentDetailsElement = document.getElementById('studentDetails');
+            studentDetailsElement.innerHTML = `
+                <div class="student-details">
+                    <h2>Подробности паспорта</h2>
+                    <div><strong>ФИО:</strong> ${student.name}</div>
+                    <div><strong>Дата рождения:</strong> ${student.dob}</div>
+                    <div><strong>Место рождения:</strong> ${student.pob}</div>
+                    <div><strong>Номер паспорта:</strong> ${student.passport}</div>
+                    <div><strong>Кем и когда выдан:</strong> ${student.issued}</div>
+                    <div><img src="${student.photo}" alt="Фото студента" class="student-photo" /></div>
+                    <button class="back-button" onclick="window.history.back()">Назад</button>
+                </div>
+            `;
         }
 
-        function startTimer() {
-            timerRunning = true;
-            localStorage.setItem("timerRunning", "true");
-
-            countdownTimer = setInterval(() => {
-                timeLeft--;
-                document.getElementById("countdown").textContent = timeLeft;
-                localStorage.setItem("timeLeft", timeLeft);
-
-                if (timeLeft <= 0) {
-                    clearInterval(countdownTimer);
-                    document.getElementById("timeWarning").style.display = "block";
-                    document.getElementById("alarmSound").play();
-                    localStorage.setItem("timerRunning", "false");
-                }
-            }, 1000);
-        }
-
-        function goBack() {
-            window.location.href = "index.html";
-        }
-
-        document.addEventListener("DOMContentLoaded", getStudentDetails);
+        // Инициализация
+        document.addEventListener("DOMContentLoaded", displayStudentDetails);
     </script>
 </body>
 </html>
