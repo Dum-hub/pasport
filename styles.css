@@ -64,7 +64,7 @@ h1, h2 {
 
 .student-photo {
     width: 100%;
-    max-width: 120px;  /* Сильно уменьшаем фото */
+    max-width: 120px;  /* Уменьшаем фото */
     margin: 10px 0;
     border-radius: 8px;
 }
